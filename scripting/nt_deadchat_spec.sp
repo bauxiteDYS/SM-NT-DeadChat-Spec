@@ -1,46 +1,52 @@
-#define MAX_MESSAGE_LENGTH 256
-#define NT_MAXPLAYERS     33
+#include <sourcemod>
 
-new	String:message[MAX_MESSAGE_LENGTH],
-	bool:targets[NT_MAXPLAYERS + 1], bool:IsTeamChat;
+char message[256];
+bool targets[33 + 1];
+bool IsTeamChat;
 
 public Plugin:myinfo =
 {
 	name        = "NT Dead Chat Spec",
 	author      = "Root, ported to NT by bauxite",
 	description = "Allows dead players to text chat with living teammates, spectators can always chat with everyone",
-	version     = "0.1.0",
+	version     = "1.1.1",
 }
 
 public OnPluginStart()
 {
-	HookUserMessage(GetUserMessageId("SayText"), SayTextHook);
+	HookUserMessage(GetUserMessageId("SayText"), SayTextHook, false);
 	HookEvent("player_say", Event_PlayerSay, EventHookMode_Post);
 }
 
-public Action:OnClientSayCommand(client, const String:command[], const String:sArgs[])
+public Action OnClientSayCommand(int client, const char[] command, const char[] sArgs)
 {
-	for (new target = 1; target <= MaxClients; target++)
+	for (int target = 1; target <= MaxClients; target++)
 	{
 		targets[target] = true;
 	}
 	
 	IsTeamChat = StrEqual(command, "say_team", false);
+	
+	return Plugin_Continue;
 }
 
-public Action:SayTextHook(UserMsg:msg_id, Handle:bf, const players[], playersNum, bool:reliable, bool:init)
+public Action SayTextHook(UserMsg msg_id, BfRead bf, const int[] players, int playersNum, bool reliable, bool init)
 {
 	BfReadString(bf, message, sizeof(message));
 
-	for (new i; i < playersNum; i++)
+	for (int i; i < playersNum; i++)
 	{
 		targets[players[i]] = false;
 	}
+	return Plugin_Continue;
 }
 
-public Event_PlayerSay(Handle:event, const String:name[], bool:dontBroadcast)
+public void Event_PlayerSay(Event event, const char[] name, bool dontBroadcast)
 {
-	new clients[MaxClients], numClients, client, i;
+	int[] clients = new int[MaxClients +1];
+	int numClients;
+	int client;
+	int i;
 
 	client = GetClientOfUserId(GetEventInt(event, "userid"));
 
@@ -58,18 +64,21 @@ public Event_PlayerSay(Handle:event, const String:name[], bool:dontBroadcast)
 	}
 	else
 	{
-		for (i = 1; i <= MaxClients; i++)
+		if (GetClientTeam(client) == 1)
 		{
-			if (IsClientInGame(i) && targets[i] && GetClientTeam(client) == 1)
+			for (i = 1; i <= MaxClients; i++)
 			{
-				clients[numClients++] = i;
+				if (IsClientInGame(i) && targets[i])
+				{
+					clients[numClients++] = i;
+				}
+				
+				targets[i] = false;
 			}
-			
-			targets[i] = false;
 		}
 	}
 
-	new Handle:SayText = StartMessage("SayText", clients, numClients, USERMSG_RELIABLE|USERMSG_BLOCKHOOKS);
+	Handle SayText = StartMessage("SayText", clients, numClients, USERMSG_RELIABLE|USERMSG_BLOCKHOOKS);
 
 	if (SayText != INVALID_HANDLE)
 	{
