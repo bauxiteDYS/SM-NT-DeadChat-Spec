@@ -4,7 +4,7 @@ char message[256];
 bool targets[33 + 1];
 bool IsTeamChat;
 
-public Plugin:myinfo =
+public Plugin myinfo =
 {
 	name        = "NT Dead Chat Spec",
 	author      = "Root, ported to NT by bauxite",
