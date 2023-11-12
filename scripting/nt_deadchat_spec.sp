@@ -10,7 +10,7 @@ public Plugin myinfo =
 	author      = "Root, ported to NT by bauxite",
 	description = "Allows dead players to text chat with living teammates, spectators can always chat with everyone",
 	version     = "1.1.1",
-}
+};
 
 public OnPluginStart()
 {
