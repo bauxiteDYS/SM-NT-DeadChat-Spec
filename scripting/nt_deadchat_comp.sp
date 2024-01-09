@@ -82,7 +82,7 @@ public void Event_PlayerSay(Event event, const char[] name, bool dontBroadcast)
 		}
 	}
 	
-	if (clients > 0)
+	if (numClients > 0)
 	{
 		Handle SayText = StartMessage("SayText", clients, numClients, USERMSG_RELIABLE|USERMSG_BLOCKHOOKS);
 
