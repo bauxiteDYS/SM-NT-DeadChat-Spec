@@ -54,31 +54,35 @@ public void Event_PlayerSay(Event event, const char[] name, bool dontBroadcast)
 
 	client = GetClientOfUserId(GetEventInt(event, "userid"));
 	
-	if (IsTeamChat)
+	if (client != 0)
 	{
-		for (i = 1; i <= MaxClients; i++)
-		{
-			if (IsClientInGame(i) && GetClientTeam(i) == GetClientTeam(client) && targets[i])
-			{
-				clients[numClients++] = i;
-			}
-			
-			targets[i] = false;
-		}
-	}
-	else
-	{
-		if (GetClientTeam(client) == 1 || !Competitive_IsLive() || Competitive_IsPaused())
+		if (IsTeamChat)
 		{
 			for (i = 1; i <= MaxClients; i++)
 			{
-				if (IsClientInGame(i) && targets[i])
+				if (IsClientInGame(i) && GetClientTeam(i) == GetClientTeam(client) && targets[i])
 				{
 					clients[numClients++] = i;
 				}
-				
+			
 				targets[i] = false;
 			}
+		}
+		else
+		{
+			if (GetClientTeam(client) == 1 || !Competitive_IsLive() || Competitive_IsPaused())
+			{
+				for (i = 1; i <= MaxClients; i++)
+				{
+					if (IsClientInGame(i) && targets[i])
+					{
+						clients[numClients++] = i;
+					}
+				
+					targets[i] = false;
+				}
+			}
+		
 		}
 	}
 	
