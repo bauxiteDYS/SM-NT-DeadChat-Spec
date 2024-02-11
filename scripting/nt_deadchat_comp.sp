@@ -82,7 +82,6 @@ public void Event_PlayerSay(Event event, const char[] name, bool dontBroadcast)
 					targets[i] = false;
 				}
 			}
-		
 		}
 	}
 	
